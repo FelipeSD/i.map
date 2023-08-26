@@ -1,25 +1,23 @@
 <template>
-  <div>
-    <LMap
-      :zoom="zoom"
-      :maxBounds="imageBounds"
-      :zoomControl="false"
-      style="height: 500px; width: 100%"
-    >
-      <LImageOverlay :url="url" :bounds="imageBounds" />
-      <LControl class="example-custom-control">
-        <p @click="showAlert">Click me</p>
-      </LControl>
-      <!-- <LControl position="bottomleft" class="custom-control-watermark">
-        Vue2Leaflet Watermark Control
-      </LControl> -->
-      <LControlZoom position="bottomright" :style="zoomControlStyle" />
-    </LMap>
-  </div>
+  <LMap
+    id="map"
+    ref="map"
+    :maxBounds="imageBounds"
+    :zoomControl="false"
+    :options="leafletOptions"
+  >
+    <LImageOverlay :url="mapUrl" :bounds="imageBounds" />
+    <LControl>
+      <p @click="showAlert">Click me</p>
+    </LControl>
+    <LControlZoom position="bottomright" />
+  </LMap>
 </template>
 
 <script>
 import { LMap, LControl, LImageOverlay, LControlZoom } from "vue2-leaflet";
+import { CRS } from "leaflet";
+import useImage from "@/composables/useImage";
 
 export default {
   name: "MapComponent",
@@ -31,19 +29,42 @@ export default {
   },
   data() {
     return {
-      zoom: 2,
-      center: [0, 0],
-      url: require("@/assets/map.jpg"),
-      attribution: "",
-      imageBounds: [
-        [0, 0],
-        [100, 140],
-      ],
-      zoomControlStyle: {
-        backgroundColor: "#ff9900", // Altere para a cor desejada
-        color: "white",
-      },
+      mapObject: null,
+      mapUrl: require("@/assets/map.jpg"),
+      imageHeight: 100,
+      imageWidth: 100,
     };
+  },
+  computed: {
+    leafletOptions() {
+      return {
+        zoom: -2,
+        minZoom: -2,
+        maxZoom: 1,
+        zoomControl: false,
+        attributionControl: false,
+        crs: CRS.Simple,
+      };
+    },
+    imageBounds() {
+      return [
+        [0, 0],
+        [this.imageHeight, this.imageWidth],
+      ];
+    },
+  },
+  async mounted() {
+    const { getImageDimensions } = useImage();
+
+    this.$nextTick(async () => {
+      this.mapObject = this.$refs.map.mapObject;
+
+      const { height, width } = await getImageDimensions(this.mapUrl);
+      this.imageHeight = height;
+      this.imageWidth = width;
+
+      this.mapObject.setView([0, -height]);
+    });
   },
   methods: {
     showAlert() {
@@ -53,22 +74,10 @@ export default {
 };
 </script>
 
-<style>
-.example-custom-control {
-  background: #fff;
-  padding: 0 0.5em;
-  border: 1px solid #aaa;
-  border-radius: 0.1em;
-}
-.custom-control-watermark {
-  font-size: 200%;
-  font-weight: bolder;
-  color: #aaa;
-  text-shadow: #555;
-}
-
-::deep .leaflet-control-zoom-in {
-  background-color: #ff9900; /* Altere para a cor desejada */
-  color: white;
+<style scoped lang="scss">
+#map {
+  height: 100vh;
+  width: 100vw;
+  background-color: #dddddd;
 }
 </style>

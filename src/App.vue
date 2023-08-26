@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import Map from './components/Map.vue';
+import Map from "./components/Map.vue";
 
 export default {
   name: "App",
@@ -13,4 +13,9 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+body {
+  margin: 0;
+  padding: 0;
+}
+</style>
