@@ -1,36 +1,40 @@
 <template>
-  <LMap
-    id="map"
-    ref="map"
-    :maxBounds="imageBounds"
-    :zoomControl="false"
-    :options="leafletOptions"
-  >
-    <LImageOverlay :url="mapUrl" :bounds="imageBounds" />
-    <LControl>
-      <p @click="showAlert">Click me</p>
-    </LControl>
-    <LControlZoom position="bottomright" />
-  </LMap>
+  <div>
+    <Menu />
+    <SearchInput />
+    <LMap
+      id="map"
+      ref="map"
+      :maxBounds="imageBounds"
+      :zoomControl="false"
+      :options="leafletOptions"
+    >
+      <LImageOverlay :url="mapUrl" :bounds="imageBounds" />
+      <LControlZoom position="bottomright" />
+    </LMap>
+  </div>
 </template>
 
 <script>
-import { LMap, LControl, LImageOverlay, LControlZoom } from "vue2-leaflet";
+import { LMap, LImageOverlay, LControlZoom } from "vue2-leaflet";
 import { CRS } from "leaflet";
 import useImage from "@/composables/useImage";
+import SearchInput from "./SearchInput.vue";
+import Menu from "./Menu.vue";
 
 export default {
   name: "MapComponent",
   components: {
     LMap,
-    LControl,
     LImageOverlay,
     LControlZoom,
+    SearchInput,
+    Menu,
   },
   data() {
     return {
       mapObject: null,
-      mapUrl: require("@/assets/map.jpg"),
+      mapUrl: require("@/assets/ufscar.jpg"),
       imageHeight: 100,
       imageWidth: 100,
     };
@@ -63,18 +67,14 @@ export default {
       this.imageHeight = height;
       this.imageWidth = width;
 
-      this.mapObject.setView([0, -height]);
+      this.mapObject.setView([0, height]);
     });
   },
-  methods: {
-    showAlert() {
-      alert("Click!");
-    },
-  },
+  methods: {},
 };
 </script>
 
-<style scoped lang="scss">
+<style scoped lang="css">
 #map {
   height: 100vh;
   width: 100vw;

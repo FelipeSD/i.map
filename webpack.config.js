@@ -1,20 +1,21 @@
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
-  loaders: [
-    {
-      test: /\.vue$/,
-      loader: 'vue'
-    },
-    {
-      test: /\.s[a|c]ss$/,
-      loader: 'style!css!sass'
-    }
-  ],
-  vue: {
-    loaders: {
-      scss: 'style!css!sass'
-    },
+  module: {
+    rules: [
+      {
+        test: /\.vue$/,
+        loader: 'vue-loader'
+      },
+      {
+        test: /\.s[a|c]ss$/,
+        use: [
+          'style-loader',
+          'css-loader',
+          'sass-loader'
+        ]
+      }
+    ]
   },
   plugins: [
     new BundleAnalyzerPlugin()
