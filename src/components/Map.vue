@@ -62,7 +62,7 @@ export default {
   },
   async mounted() {
     const { getImageDimensions } = useImage();
-    const { setDrawToolbar } = useDraw();
+    const { setupDrawToolbar } = useDraw();
 
     this.$nextTick(async () => {
       this.mapObject = this.$refs.map.mapObject;
@@ -73,7 +73,7 @@ export default {
 
       this.mapObject.setView([0, height]);
 
-      setDrawToolbar(this.mapObject);
+      setupDrawToolbar(this.mapObject);
     });
   },
   methods: {},

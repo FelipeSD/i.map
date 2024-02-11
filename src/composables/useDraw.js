@@ -1,59 +1,80 @@
-import { FeatureGroup, Control } from "leaflet";
+import L from 'leaflet';
 
 export default function useDraw () {
-  const drawnItems = new FeatureGroup();
+  const groupsMap = new Map(); // Mapa para armazenar os grupos
 
-  const toolbarOptions = {
-    draw: {
-      polygon: true,
-      polyline: false,
-      rectangle: false,
-      circle: false,
-      marker: false,
-      circlemarker: false,
-    },
-    position: "bottomleft",
-    edit: {
-      featureGroup: drawnItems,
-    },
-  }
+  // Função para configurar o toolbar de desenho no mapa
+  function setupDrawToolbar (mapObject) {
+    const toolbarOptions = {
+      draw: {
+        polygon: {
+          title: 'Draw a polygon!', // Título do botão do polígono
+          allowIntersection: false, // Permitir interseção
+          showArea: true, // Exibir área
+          metric: false, // Unidades métricas
+          repeatMode: false // Modo de repetição
+        },
+        polyline: false,
+        rectangle: false,
+        circle: false,
+        marker: false,
+        circlemarker: false,
+      },
+      position: "bottomleft",
+      edit: {
+        featureGroup: L.featureGroup([...groupsMap.values()]),
+      },
+    };
 
-  function setDrawToolbar (mapObject) {
-    mapObject.addLayer(drawnItems);
-
-    const drawControl = new Control.Draw(toolbarOptions);
+    const drawControl = new L.Control.Draw(toolbarOptions);
 
     mapObject.addControl(drawControl);
 
+    mapObject.on("draw:drawstart", (e) => {
+      console.log("draw", e)
+    });
+
     mapObject.on("draw:created", function (e) {
-      const layer = e.layer;
+      addDrawnItemToMap(mapObject, 'Grupo', e.layer)
+      // layer.on("click", function () {
+      //   console.log("Camada clicada:", layer);
+      //   console.log(geojson);
 
-      drawnItems.addLayer(layer);
-      const geojson = drawnItems.toGeoJSON();
-      console.log(geojson);
-
-      layer.on("click", function () {
-        console.log("Camada clicada:", layer);
-        console.log(geojson);
-
-        layer.setStyle({
-          color: 'blue', // Cor do contorno
-          fillColor: 'yellow' // Cor do preenchimento
-        });
-      });
+      //   layer.setStyle({
+      //     color: 'blue', // Cor do contorno
+      //     fillColor: 'yellow' // Cor do preenchimento
+      //   });
+      // });
     });
+  }
 
-    mapObject.on("draw:deleted", function (e) {
-      console.log("e", e);
-    });
+  function addDrawnItemToMap (mapObject, groupName, layer) {
+    const featureGroup = groupsMap.get(groupName);
+    if (featureGroup) {
+      featureGroup.addLayer(layer);
+    } else {
+      addFeatureGroup(mapObject, groupName, layer);
+    }
+    updateGeoJSON()
+  }
 
-    mapObject.on("draw:drawstart", function (e) {
-      console.log("inicia desenho", e);
-    });
+  function addFeatureGroup (mapObject, groupName, layer) {
+    const featureGroup = new L.FeatureGroup();
+    featureGroup.addLayer(layer);
+    groupsMap.set(groupName, featureGroup);
+    mapObject.addLayer(featureGroup);
+  }
+
+  function updateGeoJSON () {
+    const geojson = L.featureGroup([...groupsMap.values()]).toGeoJSON();
+    console.log('map', groupsMap);
+
+    console.log(geojson);
+    return geojson;
   }
 
   return {
-    drawnItems,
-    setDrawToolbar
-  }
+    setupDrawToolbar,
+    updateGeoJSON
+  };
 }
