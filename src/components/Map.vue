@@ -19,8 +19,11 @@
 import { LMap, LImageOverlay, LControlZoom } from "vue2-leaflet";
 import { CRS } from "leaflet";
 import useImage from "@/composables/useImage";
+import useDraw from "@/composables/useDraw";
 import SearchInput from "./SearchInput.vue";
 import Menu from "./Menu.vue";
+import "leaflet-draw/dist/leaflet.draw.css";
+import "leaflet-draw/dist/leaflet.draw.js";
 
 export default {
   name: "MapComponent",
@@ -44,7 +47,7 @@ export default {
       return {
         zoom: -2,
         minZoom: -2,
-        maxZoom: 1,
+        maxZoom: 4,
         zoomControl: false,
         attributionControl: false,
         crs: CRS.Simple,
@@ -59,6 +62,7 @@ export default {
   },
   async mounted() {
     const { getImageDimensions } = useImage();
+    const { setDrawToolbar } = useDraw();
 
     this.$nextTick(async () => {
       this.mapObject = this.$refs.map.mapObject;
@@ -68,6 +72,8 @@ export default {
       this.imageWidth = width;
 
       this.mapObject.setView([0, height]);
+
+      setDrawToolbar(this.mapObject);
     });
   },
   methods: {},
